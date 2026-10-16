@@ -12,7 +12,9 @@ const jsPsych = initJsPsych({
 });
 ```
 
-The progress bar automatically updates after every trial.
+The progress bar automatically updates after every trial. When an experiment finishes normally, the automatic bar is set to 100%, including when conditional timelines skip trials.
+
+Automatic progress is based on an estimated trial count. During an experiment, skipped conditional trials may cause it to underestimate progress, while additional iterations of `loop_function` timelines can cause it to reach 100% early. For accurate per-trial progress in adaptive or dynamically repeated experiments, disable automatic updates and control the bar manually as shown below. Aborted experiments are not forced to 100%.
 
 ## Manual Control
 

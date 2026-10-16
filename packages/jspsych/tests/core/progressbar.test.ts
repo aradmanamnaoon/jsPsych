@@ -59,6 +59,34 @@ describe("automatic progress bar", () => {
     expect(progressbarElement.style.width).toEqual("100%");
   });
 
+  test("automatic progress finishes at 100% after a conditional timeline is skipped", async () => {
+    const trial = { type: htmlKeyboardResponse, stimulus: "foo" };
+    const { jsPsych, finished } = await startTimeline(
+      [trial, { timeline: [trial, trial], conditional_function: () => false }, trial],
+      { show_progress_bar: true }
+    );
+
+    await pressKey("a");
+    await pressKey("a");
+    await finished;
+    expect(jsPsych.progressBar.progress).toBe(1);
+    expect(
+      jsPsych.getDisplayContainerElement().querySelector<HTMLElement>("#jspsych-progressbar-inner")
+        .style.width
+    ).toBe("100%");
+  });
+
+  test("aborting an experiment does not force the progress bar to 100%", async () => {
+    const trial = { type: htmlKeyboardResponse, stimulus: "foo" };
+    const { jsPsych, finished } = await startTimeline([trial, trial], {
+      show_progress_bar: true,
+    });
+
+    jsPsych.abortExperiment();
+    await finished;
+    expect(jsPsych.progressBar.progress).toBeLessThan(1);
+  });
+
   test("progress bar does not automatically update when auto_update_progress_bar is false", async () => {
     const trial = {
       type: htmlKeyboardResponse,
