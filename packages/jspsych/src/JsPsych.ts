@@ -18,6 +18,7 @@ import {
   TimelineArray,
   TimelineDescription,
   TimelineNodeDependencies,
+  TimelineNodeStatus,
   TimelineVariable,
   TrialResult,
 } from "./timeline";
@@ -148,6 +149,15 @@ export class JsPsych {
     this.experimentStartTime = new Date();
 
     await this.timeline.run();
+    // The naive trial count includes trials omitted by conditional timelines.
+    // Only mark the bar complete if the root timeline actually completed.
+    if (
+      this.progressBar &&
+      this.options.auto_update_progress_bar &&
+      this.timeline.getStatus() === TimelineNodeStatus.COMPLETED
+    ) {
+      this.progressBar.progress = 1;
+    }
     await Promise.resolve(this.options.on_finish(this.data.get()));
 
     if (this.endMessage) {
